@@ -7,7 +7,8 @@
   <link rel="stylesheet" href="/style.css" />
   <style>
     .host-full { display: flex; flex-direction: column; min-height: 100vh; }
-    .host-body { flex: 1; display: grid; grid-template-columns: 1fr 300px; gap: 20px; padding: 20px; }
+    .host-body { flex: 1; display: grid; grid-template-columns: 1fr 300px; gap: 20px; padding: 20px; align-items: start; align-content: start; }
+    [data-view="results"] .host-body { flex: none; }
     .host-main { display: flex; flex-direction: column; gap: 16px; }
     .host-sidebar { display: flex; flex-direction: column; gap: 16px; }
     .h-card { background: var(--card); border: 1.5px solid var(--card-border); border-radius: 12px; padding: 20px; box-shadow: 0 1px 8px rgba(28,56,40,0.06); }
@@ -126,8 +127,7 @@
       <!-- Sidebar: leaderboard + next btn -->
       <div class="host-sidebar">
         <div class="h-card" style="text-align:center;">
-          <button class="btn btn-reveal" id="revealBtn">Reveal Answer</button>
-          <button class="btn btn-next" id="nextBtn" style="margin-top:10px;">Next Question</button>
+          <button class="btn btn-next" id="nextBtn">Next Question</button>
           <div style="font-size:0.8rem; color:var(--text-muted); margin-top:8px;" id="nextBtnHint"></div>
         </div>
         <div class="h-card">
@@ -279,7 +279,7 @@ socket.on('results:show', data => {
   document.getElementById('correctStats').textContent =
     `${data.correctCount} of ${data.totalAnswered} answered correctly`;
 
-  // Build tally
+  // Build tally with correct answers shown immediately
   const maxVal = Math.max(...Object.values(data.tally), 1);
   const grid = document.getElementById('tallyGrid');
   grid.innerHTML = q.options.map((opt, i) => {
@@ -288,19 +288,28 @@ socket.on('results:show', data => {
     const isCorrect = Array.isArray(q.correct) ? q.correct.includes(i) : q.correct === i;
     return `
       <div class="tally-row">
-        <div class="tally-label" style="color:${TEXT_COLORS[i] === '#fff' ? '#fff' : '#fff'}">
+        <div class="tally-label" style="${isCorrect ? `background:${COLORS_CSS[i]}; color:#fff; padding:6px 12px; border-radius:8px;` : ''}">
           <span style="font-size:1.1rem;">${SHAPES[i]}</span>
-          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px;">${esc(opt)}</span>
+          <span>${esc(opt)}</span>
         </div>
         <div class="tally-bar-wrap">
-          <div class="tally-bar-fill" style="width:${pct}%; background:${COLORS_CSS[i]}; color:${TEXT_COLORS[i]};">
-            ${count > 0 ? count : ''}
+          <div class="tally-bar-fill" style="background:${COLORS_CSS[i]};">
+            ${count}
           </div>
         </div>
         <span class="tally-correct-mark">${isCorrect ? '✓' : ''}</span>
       </div>
     `;
   }).join('');
+
+  // Show explanation
+  const box = document.getElementById('explanationBox');
+  if (data.explanation) {
+    box.textContent = data.explanation;
+    box.style.display = 'block';
+  } else {
+    box.style.display = 'none';
+  }
 
   // Update sidebar leaderboard
   document.getElementById('resultsLeaderboard').innerHTML = renderLeaderboard(data.leaderboard);

@@ -101,8 +101,10 @@ input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(45,90,61,0
 .btn-ghost:hover:not(:disabled) { background: var(--bg); }
 .btn-start { background: var(--accent); color: #fff; font-size: 1.3rem; padding: 18px 40px; border-radius: 50px; box-shadow: 0 4px 20px rgba(45,90,61,0.28); }
 .btn-start:hover:not(:disabled) { background: var(--bg-dark); transform: translateY(-2px); box-shadow: 0 6px 24px rgba(28,56,40,0.32); }
-.btn-next { background: var(--bg-dark); color: #fff; font-size: 1.2rem; padding: 16px 36px; border-radius: 50px; }
+.btn-next { background: var(--bg-dark); color: #fff; font-size: 1.2rem; padding: 16px 36px; border-radius: 50px; width: 100%; }
 .btn-next:hover { background: var(--accent); transform: translateY(-1px); }
+.btn-reveal { background: var(--accent); color: #fff; font-size: 1rem; padding: 14px 28px; border-radius: 50px; width: 100%; box-shadow: 0 3px 14px rgba(45,90,61,0.22); }
+.btn-reveal:hover { background: var(--bg-dark); transform: translateY(-1px); }
 .btn-skip { background: var(--bg); color: var(--text); font-size: 0.9rem; padding: 10px 20px; border-radius: 50px; border: 1.5px solid var(--card-border); }
 .btn-skip:hover { background: var(--card); }
 
@@ -252,7 +254,7 @@ input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(45,90,61,0
   border: none;
   border-radius: var(--radius);
   font-family: inherit;
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: #fff;
   cursor: pointer;
@@ -302,10 +304,10 @@ input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(45,90,61,0
 
 /* ── Answer tally (host results) ── */
 .tally-grid { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
-.tally-row { display: flex; align-items: center; gap: 12px; }
-.tally-label { display: flex; align-items: center; gap: 8px; width: 180px; font-weight: 700; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
-.tally-bar-wrap { flex: 1; height: 30px; background: rgba(28,56,40,0.07); border-radius: 6px; overflow: hidden; }
-.tally-bar-fill { height: 100%; border-radius: 6px; transition: width 0.6s ease; display: flex; align-items: center; padding-left: 10px; font-weight: 800; font-size: 0.9rem; color: #fff; }
+.tally-row { display: flex; align-items: center; gap: 12px; min-height: 38px; }
+.tally-label { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; max-width: 42%; font-weight: 700; font-size: 0.9rem; color: var(--text); line-height: 1.3; }
+.tally-bar-wrap { flex: none; width: 72px; height: 30px; background: rgba(28,56,40,0.07); border-radius: 6px; overflow: hidden; }
+.tally-bar-fill { width: 100%; height: 100%; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; color: #fff; }
 .tally-count { width: 32px; text-align: right; font-weight: 800; }
 .tally-correct-mark { font-size: 1.2rem; }
 
@@ -404,7 +406,7 @@ input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(45,90,61,0
   .host-layout { grid-template-columns: 1fr; }
   .host-sidebar { order: -1; }
   .question-text { font-size: 1.2rem; }
-  .answer-btn { font-size: 0.9rem; min-height: 60px; padding: 14px 12px; }
+  .answer-btn { font-size: 1rem; min-height: 60px; padding: 14px 12px; }
   .game-code-number { font-size: 2.8rem; }
 }
 @media (max-width: 480px) {

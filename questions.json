@@ -10,16 +10,16 @@
     "correct": 0,
     "timeLimit": 60,
     "image": null,
-    "explanation": "The Data Science Process starts with a question or hypothesis, then collects data, analyzes/visualizes it, and presents results. Option B collects data before forming a hypothesis — that's backwards."
+    "explanation": "The Data Science Process starts with a question or hypothesis, then collects data, analyzes/visualizes it, and presents results. Option B collects data before forming a hypothesis, that's backwards."
   },
   {
-    "question": "The Target pregnancy prediction case — where a highly accurate model caused unintended privacy harm — is best described as a failure at which stage?",
+    "question": "The Target pregnancy prediction case, where a highly accurate model caused unintended privacy harm, is best described as a failure at which stage?",
     "type": "single",
     "options": ["Data collection", "Data storage", "Data modeling", "Deployment"],
     "correct": 3,
     "timeLimit": 60,
     "image": null,
-    "explanation": "The model was technically accurate, but the harm occurred at deployment — Target sent pregnancy-related coupons to a teenager, revealing her pregnancy to her family. The ethical failure happened when the model was put into production, not during modeling."
+    "explanation": "The model was technically accurate, but the harm occurred at deployment, Target sent pregnancy-related coupons to a teenager, revealing her pregnancy to her family. The ethical failure happened when the model was put into production, not during modeling."
   },
   {
     "question": "What is the purpose of this data science question: \"Who should make a cameo in Avengers: Doomsday to maximize hype?\"",
@@ -28,7 +28,7 @@
     "correct": 3,
     "timeLimit": 60,
     "image": null,
-    "explanation": "This question asks us to choose an option that maximizes a specific outcome (hype). That's a Decide/Optimize question — using data to make the best possible decision, not just describe, predict, or test."
+    "explanation": "This question asks us to choose an option that maximizes a specific outcome (hype). That's a Decide/Optimize question, using data to make the best possible decision, not just describe, predict, or test."
   },
   {
     "question": "Which of these would fall under the PREDICTIVE culture?",
@@ -84,7 +84,7 @@
     "correct": 3,
     "timeLimit": 60,
     "image": null,
-    "explanation": "The authors argue ethics shouldn't be siloed as an elective. It should be woven into every course AND always paired with concrete technical examples — so students learn to apply ethical thinking alongside technical skills."
+    "explanation": "The authors argue ethics shouldn't be siloed as an elective. It should be woven into every course AND always paired with concrete technical examples, so students learn to apply ethical thinking alongside technical skills."
   },
   {
     "question": "Which of the following could POTENTIALLY be PII? (Select ALL that apply)",
@@ -112,7 +112,7 @@
     "correct": 1,
     "timeLimit": 60,
     "image": null,
-    "explanation": "The values 1–5 represent ordered categories (ranked from worst to best), but the gaps between them aren't necessarily equal — you can't say the difference between 1 and 2 equals the difference between 4 and 5. That makes it ordinal, not quantitative."
+    "explanation": "The values 1–5 represent ordered categories (ranked from worst to best), but the gaps between them aren't necessarily equal, you can't say the difference between 1 and 2 equals the difference between 4 and 5. That makes it ordinal, not quantitative."
   },
   {
     "question": "A dataset records students' ZIP codes (e.g., 92122, 10001, 30309). What type of variable is this?",
@@ -126,7 +126,7 @@
     "correct": 2,
     "timeLimit": 60,
     "image": null,
-    "explanation": "Even though ZIP codes look like numbers, they have no mathematical meaning — you can't average them or rank them meaningfully. They're categorical labels, making them qualitative nominal data."
+    "explanation": "Even though ZIP codes look like numbers, they have no mathematical meaning, you can't average them or rank them meaningfully. They're categorical labels, making them qualitative nominal data."
   },
   {
     "question": "A data analyst has data about students' favorite ice cream flavors. Which chart is the BEST option to visualize this?",
@@ -149,7 +149,7 @@
     "correct": 2,
     "timeLimit": 60,
     "image": null,
-    "explanation": "Unstructured data (text, images, audio) can absolutely be quantified — sentiment scores, word frequencies, pixel values, etc. About 80% of the world's data is still unstructured, and SQL is for structured relational data, not JSON."
+    "explanation": "Unstructured data (text, images, audio) can absolutely be quantified, sentiment scores, word frequencies, pixel values, etc. About 80% of the world's data is still unstructured, and SQL is for structured relational data, not JSON."
   },
   {
     "question": "Which of the following is NOT true about web scraping?",
@@ -163,7 +163,7 @@
     "correct": 0,
     "timeLimit": 60,
     "image": null,
-    "explanation": "Being publicly accessible doesn't mean data is free to use without consent. Scraping must comply with website terms of service and privacy laws like GDPR/CCPA — especially for personal data."
+    "explanation": "Being publicly accessible doesn't mean data is free to use without consent. Scraping must comply with website terms of service and privacy laws like GDPR/CCPA, especially for personal data."
   },
   {
     "question": "Which of the following are common signs of MESSY data? (Select ALL that apply)",
@@ -178,7 +178,7 @@
     "correct": [0, 1, 3, 4],
     "timeLimit": 60,
     "image": null,
-    "explanation": "\"Each variable forms a column\" is a sign of TIDY data, not messy. The other four — column headers as values, multiple variables in one column, variables spread across rows and columns, and mixed observational units — are all Wickham's signs of messy data."
+    "explanation": "\"Each variable forms a column\" is a sign of TIDY data, not messy. The other four, column headers as values, multiple variables in one column, variables spread across rows and columns, and mixed observational units, are all Wickham's signs of messy data."
   },
   {
     "question": "In what way is the above table NOT tidy?",
@@ -192,6 +192,6 @@
     "correct": 1,
     "timeLimit": 60,
     "image": "/images/tidy-table.png",
-    "explanation": "The \"Major, college\" column stores two separate variables in one column. In tidy data, each variable needs its own column — this should be split into separate \"Major\" and \"College\" columns. Note: the table also has missing values and inconsistent values, but the primary structural tidy violation is the combined column."
+    "explanation": "The \"Major, college\" column stores two separate variables in one column. In tidy data, each variable needs its own column, this should be split into separate \"Major\" and \"College\" columns. Note: the table also has missing values and inconsistent values, but the primary structural tidy violation is the combined column."
   }
 ]
