@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Toohak!</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+<div class="page">
+
+  <!-- JOIN VIEW -->
+  <div data-view="join" class="active center">
+    <div class="logo" style="text-align:center">Toohak!</div>
+    <div class="card">
+      <div class="field">
+        <label>Game Code</label>
+        <input id="codeInput" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="000000" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label>Your Nickname</label>
+        <input id="nameInput" type="text" maxlength="20" placeholder="e.g. BiologyNerd" autocomplete="off" />
+      </div>
+      <div class="error-msg" id="joinError"></div>
+      <button class="btn btn-primary" id="joinBtn">Join!</button>
+    </div>
+  </div>
+
+  <!-- LOBBY VIEW -->
+  <div data-view="lobby" class="center" style="text-align:center">
+    <div style="font-size:1.1rem; color:var(--text-muted); margin-bottom:8px;">You're in!</div>
+    <div style="font-size:2.5rem; font-weight:900; margin-bottom:4px; color:var(--text);" id="lobbyName"></div>
+    <div style="color:var(--text-muted); font-size:0.9rem; margin-bottom:32px;">Waiting for the host to start...</div>
+    <div class="lobby-spinner"></div>
+    <style>@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }</style>
+  </div>
+
+  <!-- QUESTION VIEW -->
+  <div data-view="question" style="flex:1; flex-direction:column; padding:16px; gap:12px;">
+    <div class="timer-bar-wrap"><div class="timer-bar" id="timerBar"></div></div>
+    <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.85rem; color:var(--text-muted);">
+      <span id="qProgress"></span>
+      <span id="timerNum" style="font-size:1.5rem; font-weight:900; color:var(--text);"></span>
+    </div>
+
+    <div class="question-box">
+      <div class="question-text" id="questionText"></div>
+      <img id="questionImage" class="question-image" style="display:none" />
+      <div class="multi-hint" id="multiHint"></div>
+    </div>
+
+    <div class="answer-grid" id="answerGrid"></div>
+
+    <button class="btn btn-primary" id="multiSubmitBtn" style="display:none; margin-top:4px;">
+      Submit Answer
+    </button>
+  </div>
+
+  <!-- ANSWERED VIEW -->
+  <div data-view="answered" class="answered-screen">
+    <div class="answer-check"></div>
+    <div style="font-size:1.3rem; font-weight:800; margin-top:16px;">Answer locked in!</div>
+    <div class="waiting-label">Waiting for everyone<span class="waiting-dots"></span></div>
+  </div>
+
+  <!-- RESULT VIEW -->
+  <div data-view="result" class="center">
+    <div class="card" style="max-width:420px; width:100%;">
+      <div class="result-icon" id="resultIcon"></div>
+      <div class="result-label" id="resultLabel"></div>
+      <div class="result-points" id="resultPoints"></div>
+
+      <div class="result-score-box">
+        <div class="result-score-label">Total Score</div>
+        <div class="result-score-val" id="resultScore"></div>
+        <div class="result-rank" id="resultRank"></div>
+      </div>
+
+      <div class="waiting-label">Host is reviewing results<span class="waiting-dots"></span></div>
+    </div>
+  </div>
+
+  <!-- END VIEW -->
+  <div data-view="end" class="center" style="text-align:center">
+    <div class="final-title">Game Over!</div>
+    <div class="final-subtitle" id="endRankMsg"></div>
+    <div class="leaderboard" id="endLeaderboard" style="max-width:400px;"></div>
+  </div>
+
+  <!-- HOST LEFT VIEW -->
+  <div data-view="disconnected" class="center" style="text-align:center">
+    <div style="font-size:1.5rem; font-weight:800;">Host disconnected</div>
+    <div style="color:var(--text-muted); margin-top:8px; margin-bottom:24px;">The game has ended.</div>
+    <a href="/" class="btn btn-ghost">Back to Home</a>
+  </div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket = io();
+
+const SHAPES = ['▲', '♦', '●', '■', '★'];
+const COLORS = ['color-0','color-1','color-2','color-3','color-4'];
+const COLOR_NAMES = ['Red','Blue','Yellow','Green'];
+
+let currentCode = '';
+let currentQuestion = null;
+let timerInterval = null;
+let selectedAnswers = [];
+let hasAnswered = false;
+
+// ── View switching ──
+function show(name) {
+  document.querySelectorAll('[data-view]').forEach(el => el.classList.remove('active'));
+  const v = document.querySelector(`[data-view="${name}"]`);
+  if (v) v.classList.add('active');
+}
+
+// ── Join ──
+const joinBtn = document.getElementById('joinBtn');
+const codeInput = document.getElementById('codeInput');
+const nameInput = document.getElementById('nameInput');
+const joinError = document.getElementById('joinError');
+
+function doJoin() {
+  const code = codeInput.value.trim();
+  const name = nameInput.value.trim();
+  joinError.textContent = '';
+
+  if (!code) { joinError.textContent = 'Please enter a game code.'; return; }
+  if (!name) { joinError.textContent = 'Please enter a nickname.'; return; }
+
+  joinBtn.disabled = true;
+  joinBtn.textContent = 'Joining...';
+  currentCode = code;
+
+  socket.emit('player:join', { code, name }, res => {
+    joinBtn.disabled = false;
+    joinBtn.textContent = 'Join!';
+    if (res.error) {
+      joinError.textContent = res.error;
+      return;
+    }
+    document.getElementById('lobbyName').textContent = name;
+    show('lobby');
+  });
+}
+
+joinBtn.addEventListener('click', doJoin);
+codeInput.addEventListener('keydown', e => { if (e.key === 'Enter') nameInput.focus(); });
+nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') doJoin(); });
+
+// ── Question ──
+socket.on('question:show', q => {
+  currentQuestion = q;
+  selectedAnswers = [];
+  hasAnswered = false;
+
+  document.getElementById('qProgress').textContent = `Question ${q.index + 1} / ${q.total}`;
+  document.getElementById('questionText').textContent = q.question;
+
+  const img = document.getElementById('questionImage');
+  if (q.image) { img.src = q.image; img.style.display = 'block'; }
+  else { img.style.display = 'none'; }
+
+  const multiHint = document.getElementById('multiHint');
+  multiHint.textContent = q.type === 'multiple' ? 'Select all that apply, then hit Submit' : '';
+
+  const submitBtn = document.getElementById('multiSubmitBtn');
+  submitBtn.style.display = q.type === 'multiple' ? 'block' : 'none';
+  submitBtn.disabled = true;
+
+  buildAnswerButtons(q);
+  startTimer(q.timeLimit);
+  show('question');
+});
+
+function buildAnswerButtons(q) {
+  const grid = document.getElementById('answerGrid');
+  grid.innerHTML = '';
+  grid.className = 'answer-grid' + (q.options.length === 2 ? ' two-options' : '');
+
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = `answer-btn ${COLORS[i]}`;
+    btn.innerHTML = `<span class="shape">${SHAPES[i]}</span><span class="answer-text">${opt}</span>`;
+
+    if (q.type === 'multiple') {
+      btn.addEventListener('click', () => {
+        if (hasAnswered) return;
+        const idx = selectedAnswers.indexOf(i);
+        if (idx === -1) {
+          selectedAnswers.push(i);
+          btn.classList.add('selected');
+        } else {
+          selectedAnswers.splice(idx, 1);
+          btn.classList.remove('selected');
+        }
+        document.getElementById('multiSubmitBtn').disabled = selectedAnswers.length === 0;
+      });
+    } else {
+      btn.addEventListener('click', () => {
+        if (hasAnswered) return;
+        submitAnswer(i);
+      });
+    }
+
+    grid.appendChild(btn);
+  });
+}
+
+document.getElementById('multiSubmitBtn').addEventListener('click', () => {
+  if (hasAnswered || selectedAnswers.length === 0) return;
+  submitAnswer([...selectedAnswers]);
+});
+
+function submitAnswer(answer) {
+  if (hasAnswered) return;
+  hasAnswered = true;
+
+  // Disable all buttons
+  document.querySelectorAll('.answer-btn').forEach(b => { b.disabled = true; b.classList.add('submitted'); });
+  document.getElementById('multiSubmitBtn').disabled = true;
+
+  socket.emit('player:answer', { code: currentCode, answer });
+  show('answered');
+}
+
+// ── Timer ──
+function startTimer(seconds) {
+  clearInterval(timerInterval);
+  let remaining = seconds;
+  const bar = document.getElementById('timerBar');
+  const num = document.getElementById('timerNum');
+
+  bar.style.transition = 'none';
+  bar.style.width = '100%';
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      bar.style.transition = `width ${seconds}s linear`;
+      bar.style.width = '0%';
+    });
+  });
+
+  num.textContent = remaining;
+  timerInterval = setInterval(() => {
+    remaining--;
+    num.textContent = Math.max(0, remaining);
+    if (remaining <= 0) clearInterval(timerInterval);
+  }, 1000);
+}
+
+// ── Results ──
+socket.on('results:show', data => {
+  clearInterval(timerInterval);
+
+  const { playerResult, score, rank, correctAnswer } = data;
+  const correct = playerResult?.correct;
+
+  document.getElementById('resultIcon').textContent = correct ? '✅' : '❌';
+  document.getElementById('resultIcon').className = 'result-icon';
+  document.getElementById('resultLabel').textContent = correct ? 'Correct!' : 'Incorrect';
+  document.getElementById('resultPoints').innerHTML = correct
+    ? `+${playerResult.points} points`
+    : `The answer was:<br>${getCorrectText(correctAnswer, currentQuestion)}`;
+  document.getElementById('resultScore').textContent = score?.toLocaleString() ?? '0';
+  document.getElementById('resultRank').textContent = rank ? `Rank #${rank}` : '';
+
+  show('result');
+});
+
+function getCorrectText(correct, q) {
+  if (!q) return '';
+  if (Array.isArray(correct)) return correct.map(i => esc(q.options[i])).join('<br>');
+  return esc(q.options[correct] ?? correct);
+}
+
+// ── End ──
+socket.on('game:end', ({ leaderboard }) => {
+  clearInterval(timerInterval);
+  const lb = document.getElementById('endLeaderboard');
+  lb.innerHTML = renderLeaderboard(leaderboard);
+
+  const myName = document.getElementById('lobbyName').textContent;
+  const myRank = leaderboard.findIndex(p => p.name === myName) + 1;
+  document.getElementById('endRankMsg').textContent = myRank
+    ? `You finished #${myRank} with ${leaderboard[myRank-1]?.score?.toLocaleString()} points!`
+    : '';
+
+  show('end');
+});
+
+socket.on('game:host_left', () => {
+  clearInterval(timerInterval);
+  show('disconnected');
+});
+
+// ── Leaderboard renderer ──
+function renderLeaderboard(list) {
+  const rankClass = ['gold','silver','bronze'];
+  return list.map((p, i) => `
+    <div class="lb-row">
+      <span class="lb-rank ${rankClass[i] || ''}">#${i+1}</span>
+      <span class="lb-name">${esc(p.name)}</span>
+      <span class="lb-score">${p.score.toLocaleString()}</span>
+    </div>
+  `).join('');
+}
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>

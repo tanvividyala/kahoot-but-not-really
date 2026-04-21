@@ -1,0 +1,197 @@
+[
+  {
+    "question": "Which of the following follows the steps of the Data Science Process in the right order?",
+    "type": "single",
+    "options": [
+      "Form hypothesis about movies → scrape IMDB → graph genre vs. sentiment → present results",
+      "Collect survey data → ask if age affects pet ownership → plot age vs. cats → train regression model",
+      "Neither"
+    ],
+    "correct": 0,
+    "timeLimit": 60,
+    "image": null,
+    "explanation": "The Data Science Process starts with a question or hypothesis, then collects data, analyzes/visualizes it, and presents results. Option B collects data before forming a hypothesis — that's backwards."
+  },
+  {
+    "question": "The Target pregnancy prediction case — where a highly accurate model caused unintended privacy harm — is best described as a failure at which stage?",
+    "type": "single",
+    "options": ["Data collection", "Data storage", "Data modeling", "Deployment"],
+    "correct": 3,
+    "timeLimit": 60,
+    "image": null,
+    "explanation": "The model was technically accurate, but the harm occurred at deployment — Target sent pregnancy-related coupons to a teenager, revealing her pregnancy to her family. The ethical failure happened when the model was put into production, not during modeling."
+  },
+  {
+    "question": "What is the purpose of this data science question: \"Who should make a cameo in Avengers: Doomsday to maximize hype?\"",
+    "type": "single",
+    "options": ["Describe patterns", "Predict the future", "Test cause & effect", "Decide / optimize"],
+    "correct": 3,
+    "timeLimit": 60,
+    "image": null,
+    "explanation": "This question asks us to choose an option that maximizes a specific outcome (hype). That's a Decide/Optimize question — using data to make the best possible decision, not just describe, predict, or test."
+  },
+  {
+    "question": "Which of these would fall under the PREDICTIVE culture?",
+    "type": "single",
+    "options": [
+      "Investigating how social media ads affect voter turnout",
+      "Probing a language model to understand its distributions",
+      "Building an algorithm to identify music genre",
+      "Studying how interest rate changes have affected unemployment"
+    ],
+    "correct": 2,
+    "timeLimit": 60,
+    "image": null,
+    "explanation": "Building a genre-identification algorithm is a classic predictive/classification task. The others are causal (ads → turnout), exploratory (probing a model), and descriptive (historical interest rates)."
+  },
+  {
+    "question": "Which of these is NOT a good ethical decision?",
+    "type": "single",
+    "options": [
+      "Analyzing survey questions carefully when using survey data",
+      "Testing your model for equality across different demographics",
+      "Monitoring the model for misuse and bias after deployment",
+      "Keeping individuals from removing their data once analysis begins"
+    ],
+    "correct": 3,
+    "timeLimit": 60,
+    "image": null,
+    "explanation": "People have the right to withdraw consent and have their data removed (the \"right to be forgotten,\" per GDPR and ethical guidelines). Blocking removal violates data ethics. The other three are all good practices."
+  },
+  {
+    "question": "Which of the following do your devices collect data on? (Select ALL that apply)",
+    "type": "multiple",
+    "options": [
+      "Location data (GPS, wi-fi signals, IP address)",
+      "Demographic data (age, gender, race)",
+      "Search history (even in incognito / private mode)",
+      "Physical interactions (touch patterns, screen time, app usage)"
+    ],
+    "correct": [0, 1, 2, 3],
+    "timeLimit": 60,
+    "image": null,
+    "explanation": "All four are correct. Devices collect location via GPS/wifi/IP, demographic data through profiles and purchases, search history even in incognito (at the network/ISP level), and physical interaction patterns through sensors."
+  },
+  {
+    "question": "How do the authors of \"Data's Day of Reckoning\" think data ethics should be integrated into data science?",
+    "type": "single",
+    "options": [
+      "As an optional elective",
+      "Deeply integrated into every course",
+      "Paired with technical tools and examples",
+      "Both B and C"
+    ],
+    "correct": 3,
+    "timeLimit": 60,
+    "image": null,
+    "explanation": "The authors argue ethics shouldn't be siloed as an elective. It should be woven into every course AND always paired with concrete technical examples — so students learn to apply ethical thinking alongside technical skills."
+  },
+  {
+    "question": "Which of the following could POTENTIALLY be PII? (Select ALL that apply)",
+    "type": "multiple",
+    "options": [
+      "Gender",
+      "Amazon purchase history",
+      "Writing style",
+      "Movie watch history"
+    ],
+    "correct": [0, 1, 2, 3],
+    "timeLimit": 60,
+    "image": null,
+    "explanation": "All four can potentially identify individuals. Writing style can fingerprint authorship; purchase and watch history reveal private behaviors; gender combined with other data can narrow identity significantly."
+  },
+  {
+    "question": "A survey asks students to rate course satisfaction from 1 (Very Dissatisfied) to 5 (Very Satisfied). What type of variable is this?",
+    "type": "single",
+    "options": [
+      "Quantitative, continuous",
+      "Qualitative, ordinal",
+      "Qualitative, nominal",
+      "Quantitative, discrete"
+    ],
+    "correct": 1,
+    "timeLimit": 60,
+    "image": null,
+    "explanation": "The values 1–5 represent ordered categories (ranked from worst to best), but the gaps between them aren't necessarily equal — you can't say the difference between 1 and 2 equals the difference between 4 and 5. That makes it ordinal, not quantitative."
+  },
+  {
+    "question": "A dataset records students' ZIP codes (e.g., 92122, 10001, 30309). What type of variable is this?",
+    "type": "single",
+    "options": [
+      "Quantitative, continuous",
+      "Qualitative, ordinal",
+      "Qualitative, nominal",
+      "Quantitative, discrete"
+    ],
+    "correct": 2,
+    "timeLimit": 60,
+    "image": null,
+    "explanation": "Even though ZIP codes look like numbers, they have no mathematical meaning — you can't average them or rank them meaningfully. They're categorical labels, making them qualitative nominal data."
+  },
+  {
+    "question": "A data analyst has data about students' favorite ice cream flavors. Which chart is the BEST option to visualize this?",
+    "type": "single",
+    "options": ["Scatter plot", "Bar chart", "Histogram", "Line chart"],
+    "correct": 1,
+    "timeLimit": 60,
+    "image": null,
+    "explanation": "Ice cream flavor is a nominal categorical variable. Bar charts compare counts across unordered categories. Histograms are for continuous numerical data, scatter plots need two numerical variables, and line charts imply a time or order sequence."
+  },
+  {
+    "question": "Which of the following is TRUE about structured and unstructured data?",
+    "type": "single",
+    "options": [
+      "Text data is structured because you can measure its sentiment",
+      "Thanks to big data advances, most data in the world is now structured",
+      "You CAN do quantitative analysis on unstructured data",
+      "SQL processes semi-structured data like JSON files"
+    ],
+    "correct": 2,
+    "timeLimit": 60,
+    "image": null,
+    "explanation": "Unstructured data (text, images, audio) can absolutely be quantified — sentiment scores, word frequencies, pixel values, etc. About 80% of the world's data is still unstructured, and SQL is for structured relational data, not JSON."
+  },
+  {
+    "question": "Which of the following is NOT true about web scraping?",
+    "type": "single",
+    "options": [
+      "Web scraping never requires privacy consent because the internet is public",
+      "Web scraping is useful when there is no available API",
+      "Web scraping must follow website terms of service and privacy rules",
+      "Web scraping can automatically collect information from websites"
+    ],
+    "correct": 0,
+    "timeLimit": 60,
+    "image": null,
+    "explanation": "Being publicly accessible doesn't mean data is free to use without consent. Scraping must comply with website terms of service and privacy laws like GDPR/CCPA — especially for personal data."
+  },
+  {
+    "question": "Which of the following are common signs of MESSY data? (Select ALL that apply)",
+    "type": "multiple",
+    "options": [
+      "Column headers contain values instead of variable names",
+      "A single column contains multiple variables",
+      "Each variable forms a column",
+      "Variables are entered in both rows AND columns",
+      "Multiple types of observational units are mixed in one table"
+    ],
+    "correct": [0, 1, 3, 4],
+    "timeLimit": 60,
+    "image": null,
+    "explanation": "\"Each variable forms a column\" is a sign of TIDY data, not messy. The other four — column headers as values, multiple variables in one column, variables spread across rows and columns, and mixed observational units — are all Wickham's signs of messy data."
+  },
+  {
+    "question": "In what way is the above table NOT tidy?",
+    "type": "single",
+    "options": [
+      "Missing values",
+      "Multiple variables in one column",
+      "Variables in rows and columns",
+      "Inconsistent values (Dog vs. Dogs)"
+    ],
+    "correct": 1,
+    "timeLimit": 60,
+    "image": "/images/tidy-table.png",
+    "explanation": "The \"Major, college\" column stores two separate variables in one column. In tidy data, each variable needs its own column — this should be split into separate \"Major\" and \"College\" columns. Note: the table also has missing values and inconsistent values, but the primary structural tidy violation is the combined column."
+  }
+]

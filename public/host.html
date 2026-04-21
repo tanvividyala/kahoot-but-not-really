@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Toohak! — Host</title>
+  <link rel="stylesheet" href="/style.css" />
+  <style>
+    .host-full { display: flex; flex-direction: column; min-height: 100vh; }
+    .host-body { flex: 1; display: grid; grid-template-columns: 1fr 300px; gap: 20px; padding: 20px; }
+    .host-main { display: flex; flex-direction: column; gap: 16px; }
+    .host-sidebar { display: flex; flex-direction: column; gap: 16px; }
+    .h-card { background: var(--card); border: 1.5px solid var(--card-border); border-radius: 12px; padding: 20px; box-shadow: 0 1px 8px rgba(28,56,40,0.06); }
+    .host-topbar { background: var(--bg-dark); padding: 12px 20px; display: flex; align-items: center; gap: 16px; color: #fff; }
+    .host-topbar .code-pill { background: rgba(255,255,255,0.18); border-radius: 50px; padding: 6px 16px; font-weight: 900; font-size: 1rem; letter-spacing: 0.1em; color: #fff; }
+    .host-topbar .title { font-weight: 900; font-size: 1.1rem; flex: 1; color: #fff; }
+    @media (max-width: 768px) { .host-body { grid-template-columns: 1fr; } }
+    [data-view] { display: none; }
+    [data-view].active { display: flex; flex-direction: column; }
+    .q-type-badge { display: inline-block; background: var(--bg); border: 1.5px solid var(--card-border); color: var(--text-muted); border-radius: 50px; padding: 4px 12px; font-size: 0.8rem; font-weight: 700; margin-bottom: 12px; }
+    .big-answer { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 12px; margin-bottom: 10px; font-weight: 600; color: #fff; }
+  </style>
+</head>
+<body>
+<div class="host-full">
+
+  <!-- LOBBY VIEW -->
+  <div data-view="lobby" class="active center" style="padding: 32px;">
+    <div style="text-align:center; margin-bottom: 32px;">
+      <div class="logo">Toohak!</div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; width: 100%; max-width: 800px;">
+      <!-- Code card -->
+      <div class="h-card" style="text-align:center;">
+        <div style="font-size:0.8rem; font-weight:700; opacity:0.6; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:8px;">Game PIN</div>
+        <div id="lobbyCode" style="font-size:4rem; font-weight:900; letter-spacing:0.15em; color:var(--text); line-height:1;"></div>
+        <div style="font-size:0.8rem; color:var(--text-muted); margin-top:8px;">Players go to: <strong id="joinUrl"></strong></div>
+        <div style="margin-top:16px; background:var(--bg); border:1.5px solid var(--card-border); border-radius:8px; padding:8px 12px; font-size:0.85rem; color:var(--text-muted);">
+          Share this PIN with your class
+        </div>
+      </div>
+
+      <!-- Player list -->
+      <div class="h-card">
+        <div class="player-count-badge" id="playerCountBadge">0 players joined</div>
+        <div class="player-grid" id="playerGrid"></div>
+      </div>
+    </div>
+
+    <div style="margin-top: 32px; display: flex; flex-direction: column; align-items: center; gap: 12px;">
+      <button id="startBtn" class="btn btn-start" disabled>
+        Start Game
+      </button>
+      <div style="font-size:0.85rem; opacity:0.6;" id="startHint">Waiting for at least 1 player...</div>
+    </div>
+  </div>
+
+  <!-- QUESTION VIEW (host) -->
+  <div data-view="question">
+    <div class="host-topbar">
+      <div class="title">Host View</div>
+      <div class="code-pill" id="hostCodePill"></div>
+      <div id="answerCountDisplay" style="font-size:0.9rem; color:rgba(255,255,255,0.75);"></div>
+    </div>
+
+    <div class="host-body">
+      <!-- Main: question + answer options -->
+      <div class="host-main">
+        <div class="h-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span class="q-type-badge" id="hostQTypeBadge"></span>
+            <span id="hostQProgress" style="font-size:0.85rem; color:var(--text-muted);"></span>
+          </div>
+          <div id="hostTimerNum" class="timer-number"></div>
+          <div class="timer-bar-wrap"><div class="timer-bar" id="hostTimerBar"></div></div>
+          <div id="hostQuestionText" style="font-size:1.6rem; font-weight:800; line-height:1.3; margin-top:12px;"></div>
+          <img id="hostQuestionImage" style="max-width:100%; max-height:220px; border-radius:8px; margin-top:16px; display:none; object-fit:contain;" />
+        </div>
+
+        <!-- Answer options display -->
+        <div class="h-card">
+          <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; margin-bottom:12px; text-transform:uppercase; letter-spacing:0.07em;">Answer Options</div>
+          <div id="hostAnswerList"></div>
+        </div>
+      </div>
+
+      <!-- Sidebar: controls + mini leaderboard -->
+      <div class="host-sidebar">
+        <div class="h-card" style="text-align:center;">
+          <div style="font-size:0.8rem; color:var(--text-muted); font-weight:600; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.05em;">Answers received</div>
+          <div id="hostAnswerFraction" style="font-size:2rem; font-weight:900; color:var(--text);"></div>
+          <div style="margin-top:16px; display:flex; flex-direction:column; gap:8px;">
+            <button class="btn btn-skip" id="skipToResultsBtn">Skip to Results</button>
+          </div>
+        </div>
+        <div class="h-card">
+          <div class="leaderboard-title">Current Standings</div>
+          <div id="hostSideLeaderboard"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS VIEW (host) -->
+  <div data-view="results">
+    <div class="host-topbar">
+      <div class="title">Results</div>
+      <div class="code-pill" id="hostCodePill2"></div>
+    </div>
+
+    <div class="host-body">
+      <!-- Main: tally -->
+      <div class="host-main">
+        <div class="h-card">
+          <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.07em; margin-bottom:4px;">Question</div>
+          <div id="resultsQuestionText" style="font-size:1.3rem; font-weight:800; margin-bottom:16px; color:var(--text);"></div>
+
+          <div id="correctStats" style="font-size:0.9rem; color:var(--text-muted); margin-bottom:16px;"></div>
+
+          <div class="tally-grid" id="tallyGrid"></div>
+          <div id="explanationBox" style="display:none; margin-top:16px; padding:14px 16px; background:var(--bg); border:1.5px solid var(--card-border); border-radius:8px; font-size:0.95rem; color:var(--text-muted); line-height:1.6;"></div>
+        </div>
+      </div>
+
+      <!-- Sidebar: leaderboard + next btn -->
+      <div class="host-sidebar">
+        <div class="h-card" style="text-align:center;">
+          <button class="btn btn-reveal" id="revealBtn">Reveal Answer</button>
+          <button class="btn btn-next" id="nextBtn" style="margin-top:10px;">Next Question</button>
+          <div style="font-size:0.8rem; color:var(--text-muted); margin-top:8px;" id="nextBtnHint"></div>
+        </div>
+        <div class="h-card">
+          <div class="leaderboard-title">Leaderboard</div>
+          <div class="leaderboard" id="resultsLeaderboard"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- END VIEW (host) -->
+  <div data-view="end" class="center" style="text-align:center; padding:40px;">
+    <div class="final-title" style="margin:0 0 8px;">Game Over!</div>
+    <div style="color:var(--text-muted); margin-bottom:32px;">Thanks for playing!</div>
+    <div class="leaderboard" id="finalLeaderboard" style="max-width:480px;"></div>
+    <button onclick="location.href='/host'" class="btn btn-ghost" style="margin-top:24px;">Play Again</button>
+  </div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket = io();
+
+const SHAPES = ['▲', '♦', '●', '■', '★'];
+const COLORS_CSS = ['var(--red)','var(--blue)','var(--yellow)','var(--green)','var(--orange)'];
+const TEXT_COLORS = ['#fff','#fff','#fff','#fff','#fff'];
+const TYPE_LABELS = { single: 'Single Choice', truefalse: 'True / False', multiple: 'Multi-Select' };
+
+let gameCode = '';
+let currentQuestion = null;
+let timerInterval = null;
+let playerCount = 0;
+
+// ── View ──
+function show(name) {
+  document.querySelectorAll('[data-view]').forEach(el => el.classList.remove('active'));
+  const v = document.querySelector(`[data-view="${name}"]`);
+  if (v) v.classList.add('active');
+}
+
+// ── Create game on load ──
+socket.emit('host:create', ({ code }) => {
+  gameCode = code;
+  document.getElementById('lobbyCode').textContent = code;
+  document.getElementById('hostCodePill').textContent = code;
+  document.getElementById('hostCodePill2').textContent = code;
+  const url = `${location.protocol}//${location.hostname}${location.port ? ':'+location.port : ''}/play`;
+  document.getElementById('joinUrl').textContent = url;
+});
+
+// ── Lobby ──
+document.getElementById('startBtn').addEventListener('click', () => {
+  if (playerCount === 0) return;
+  socket.emit('host:start', { code: gameCode });
+});
+
+socket.on('player:joined', ({ name, count }) => {
+  playerCount = count;
+  updatePlayerDisplay(name, count);
+});
+
+socket.on('player:left', ({ name, count }) => {
+  playerCount = count;
+  document.getElementById('playerCountBadge').textContent = `${count} player${count !== 1 ? 's' : ''} joined`;
+  // Remove chip (simple: just rebuild or ignore since this is edge case)
+});
+
+function updatePlayerDisplay(newName, count) {
+  const badge = document.getElementById('playerCountBadge');
+  badge.textContent = `${count} player${count !== 1 ? 's' : ''} joined`;
+
+  const startBtn = document.getElementById('startBtn');
+  const startHint = document.getElementById('startHint');
+  startBtn.disabled = count === 0;
+  startHint.textContent = count > 0 ? `${count} player${count !== 1 ? 's' : ''} ready!` : 'Waiting for at least 1 player...';
+
+  if (newName) {
+    const chip = document.createElement('div');
+    chip.className = 'player-chip';
+    chip.textContent = newName;
+    document.getElementById('playerGrid').appendChild(chip);
+  }
+}
+
+// ── Question (host) ──
+socket.on('question:show', q => {
+  currentQuestion = q;
+
+  document.getElementById('hostQTypeBadge').textContent = TYPE_LABELS[q.type] || q.type;
+  document.getElementById('hostQProgress').textContent = `${q.index + 1} / ${q.total}`;
+  document.getElementById('hostQuestionText').textContent = q.question;
+  document.getElementById('hostAnswerFraction').textContent = `0 / ${playerCount}`;
+
+  const img = document.getElementById('hostQuestionImage');
+  if (q.image) { img.src = q.image; img.style.display = 'block'; }
+  else { img.style.display = 'none'; }
+
+  // Build answer list
+  const list = document.getElementById('hostAnswerList');
+  list.innerHTML = q.options.map((opt, i) => `
+    <div class="big-answer" style="background:${COLORS_CSS[i]}; color:${TEXT_COLORS[i]};">
+      <span style="font-size:1.3rem;">${SHAPES[i]}</span>
+      <span style="flex:1;">${esc(opt)}</span>
+    </div>
+  `).join('');
+
+  startHostTimer(q.timeLimit);
+  show('question');
+});
+
+function startHostTimer(seconds) {
+  clearInterval(timerInterval);
+  let remaining = seconds;
+  const bar = document.getElementById('hostTimerBar');
+  const num = document.getElementById('hostTimerNum');
+
+  bar.style.transition = 'none';
+  bar.style.width = '100%';
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    bar.style.transition = `width ${seconds}s linear`;
+    bar.style.width = '0%';
+  }));
+
+  num.textContent = remaining;
+  timerInterval = setInterval(() => {
+    remaining--;
+    num.textContent = Math.max(0, remaining);
+    if (remaining <= 0) clearInterval(timerInterval);
+  }, 1000);
+}
+
+socket.on('answer:count', ({ count, total }) => {
+  document.getElementById('hostAnswerFraction').textContent = `${count} / ${total}`;
+  document.getElementById('answerCountDisplay').textContent = `${count}/${total} answered`;
+});
+
+document.getElementById('skipToResultsBtn').addEventListener('click', () => {
+  socket.emit('host:next', { code: gameCode });
+});
+
+// ── Results (host) ──
+socket.on('results:show', data => {
+  clearInterval(timerInterval);
+  const q = currentQuestion;
+  if (!q) return;
+
+  document.getElementById('resultsQuestionText').textContent = q.question;
+  document.getElementById('correctStats').textContent =
+    `${data.correctCount} of ${data.totalAnswered} answered correctly`;
+
+  // Build tally
+  const maxVal = Math.max(...Object.values(data.tally), 1);
+  const grid = document.getElementById('tallyGrid');
+  grid.innerHTML = q.options.map((opt, i) => {
+    const count = data.tally[i] || 0;
+    const pct = Math.round((count / maxVal) * 100);
+    const isCorrect = Array.isArray(q.correct) ? q.correct.includes(i) : q.correct === i;
+    return `
+      <div class="tally-row">
+        <div class="tally-label" style="color:${TEXT_COLORS[i] === '#fff' ? '#fff' : '#fff'}">
+          <span style="font-size:1.1rem;">${SHAPES[i]}</span>
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px;">${esc(opt)}</span>
+        </div>
+        <div class="tally-bar-wrap">
+          <div class="tally-bar-fill" style="width:${pct}%; background:${COLORS_CSS[i]}; color:${TEXT_COLORS[i]};">
+            ${count > 0 ? count : ''}
+          </div>
+        </div>
+        <span class="tally-correct-mark">${isCorrect ? '✓' : ''}</span>
+      </div>
+    `;
+  }).join('');
+
+  // Update sidebar leaderboard
+  document.getElementById('resultsLeaderboard').innerHTML = renderLeaderboard(data.leaderboard);
+  document.getElementById('hostSideLeaderboard').innerHTML = renderLeaderboard(data.leaderboard);
+
+  const isLast = q.index + 1 >= q.total;
+  document.getElementById('nextBtnHint').textContent = isLast ? 'This was the last question' : `Question ${q.index + 2} of ${q.total} next`;
+  document.getElementById('nextBtn').textContent = isLast ? 'See Final Results' : 'Next Question';
+
+  show('results');
+});
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+  socket.emit('host:next', { code: gameCode });
+});
+
+// ── End ──
+socket.on('game:end', ({ leaderboard }) => {
+  document.getElementById('finalLeaderboard').innerHTML = renderLeaderboard(leaderboard);
+  show('end');
+});
+
+// ── Helpers ──
+function renderLeaderboard(list) {
+  const rankClass = ['gold','silver','bronze'];
+  return list.map((p, i) => `
+    <div class="lb-row">
+      <span class="lb-rank ${rankClass[i] || ''}">#${i+1}</span>
+      <span class="lb-name">${esc(p.name)}</span>
+      <span class="lb-score">${p.score.toLocaleString()}</span>
+    </div>
+  `).join('');
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>
