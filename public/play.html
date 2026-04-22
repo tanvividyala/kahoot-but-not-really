@@ -58,7 +58,7 @@
 
   <!-- ANSWERED VIEW -->
   <div data-view="answered" class="answered-screen">
-    <div class="answer-check"></div>
+    <div class="answer-anim"><span></span><span></span><span></span></div>
     <div style="font-size:1.3rem; font-weight:800; margin-top:16px;">Answer locked in!</div>
     <div class="waiting-label">Waiting for everyone<span class="waiting-dots"></span></div>
   </div>
@@ -262,11 +262,13 @@ socket.on('results:show', data => {
   document.getElementById('resultIcon').textContent = correct ? '✅' : '❌';
   document.getElementById('resultIcon').className = 'result-icon';
   document.getElementById('resultLabel').textContent = correct ? 'Correct!' : 'Incorrect';
-  document.getElementById('resultPoints').innerHTML = correct
-    ? `+${playerResult.points} points`
-    : `The answer was:<br>${getCorrectText(correctAnswer, currentQuestion)}`;
+  document.getElementById('resultPoints').textContent = correct ? `+${playerResult.points} points` : '';
   document.getElementById('resultScore').textContent = score?.toLocaleString() ?? '0';
   document.getElementById('resultRank').textContent = rank ? `Rank #${rank}` : '';
+
+  const resultView = document.querySelector('[data-view="result"]');
+  resultView.classList.toggle('result-incorrect', !correct);
+  resultView.classList.toggle('result-correct', !!correct);
 
   show('result');
 });
