@@ -254,7 +254,7 @@ input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(45,90,61,0
   border: none;
   border-radius: var(--radius);
   font-family: inherit;
-  font-size: 1.1rem;
+  font-size: 1.4rem;
   font-weight: 600;
   color: #fff;
   cursor: pointer;
@@ -303,13 +303,31 @@ input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(45,90,61,0
 .answer-btn.submitted { opacity: 0.65; cursor: not-allowed; }
 
 /* ── Answer tally (host results) ── */
-.tally-grid { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
-.tally-row { display: flex; align-items: center; gap: 12px; min-height: 38px; }
-.tally-label { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; max-width: 42%; font-weight: 700; font-size: 0.9rem; color: var(--text); line-height: 1.3; }
-.tally-bar-wrap { flex: none; width: 72px; height: 30px; background: rgba(28,56,40,0.07); border-radius: 6px; overflow: hidden; }
-.tally-bar-fill { width: 100%; height: 100%; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; color: #fff; }
-.tally-count { width: 32px; text-align: right; font-weight: 800; }
-.tally-correct-mark { font-size: 1.2rem; }
+.tally-grid { display: flex; flex-direction: column; gap: 8px; margin: 0; }
+.tally-row { display: flex; align-items: center; gap: 10px; }
+.tally-answer-label { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; color: #fff; font-weight: 700; font-size: 0.9rem; flex: 0 0 40%; min-width: 0; line-height: 1.2; }
+.tally-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tally-check { flex-shrink: 0; }
+.tally-bar-track { flex: 1; height: 38px; background: rgba(28,56,40,0.07); border-radius: 8px; overflow: hidden; }
+.tally-bar-fill { height: 100%; border-radius: 8px; min-width: 2px; transition: width 0.7s cubic-bezier(0.34,1.1,0.64,1); }
+.tally-count { width: 28px; text-align: right; font-weight: 800; font-size: 1rem; color: var(--text); flex-shrink: 0; }
+
+/* ── Host question answer grid (mirrors guest 2×2) ── */
+.host-answer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.host-answer-grid .big-answer { margin-bottom: 0; }
+
+/* ── Tighter layout for question + results views ── */
+[data-view="question"] .host-body { padding: 12px; gap: 12px; }
+[data-view="question"] .h-card { padding: 12px 14px; }
+[data-view="results"] .host-body { padding: 12px; gap: 12px; }
+[data-view="results"] .h-card { padding: 12px 14px; }
+
+/* ── Results vertical bar chart ── */
+.bar-col { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; max-width: 120px; }
+.bar-check { font-size: 1.3rem; font-weight: 900; min-height: 1.5rem; line-height: 1; }
+.bar-count { font-weight: 900; font-size: 1.1rem; }
+.bar-fill { width: 72px; transition: height 0.6s cubic-bezier(0.34, 1.1, 0.64, 1); }
+.bar-chip { width: 72px; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.3rem; flex-shrink: 0; }
 
 /* ── Leaderboard ── */
 .leaderboard { width: 100%; }

@@ -57,84 +57,59 @@
     </div>
   </div>
 
-  <!-- QUESTION VIEW (host) -->
-  <div data-view="question">
+  <!-- QUESTION VIEW (host) — mirrors player layout -->
+  <div data-view="question" style="flex:1;">
     <div class="host-topbar">
       <div class="title">Host View</div>
       <div class="code-pill" id="hostCodePill"></div>
       <div id="answerCountDisplay" style="font-size:0.9rem; color:rgba(255,255,255,0.75);"></div>
+      <button class="btn btn-skip" id="skipToResultsBtn" style="margin-left:auto; padding:8px 16px; font-size:0.85rem;">Skip to Results</button>
     </div>
 
-    <div class="host-body">
-      <!-- Main: question + answer options -->
-      <div class="host-main">
-        <div class="h-card">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <span class="q-type-badge" id="hostQTypeBadge"></span>
-            <span id="hostQProgress" style="font-size:0.85rem; color:var(--text-muted);"></span>
-          </div>
-          <div id="hostTimerNum" class="timer-number"></div>
-          <div class="timer-bar-wrap"><div class="timer-bar" id="hostTimerBar"></div></div>
-          <div id="hostQuestionText" style="font-size:1.6rem; font-weight:800; line-height:1.3; margin-top:12px;"></div>
-          <img id="hostQuestionImage" style="max-width:100%; max-height:220px; border-radius:8px; margin-top:16px; display:none; object-fit:contain;" />
-        </div>
-
-        <!-- Answer options display -->
-        <div class="h-card">
-          <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; margin-bottom:12px; text-transform:uppercase; letter-spacing:0.07em;">Answer Options</div>
-          <div id="hostAnswerList"></div>
-        </div>
+    <div style="flex:1; display:flex; flex-direction:column; padding:16px; gap:12px;">
+      <div class="timer-bar-wrap"><div class="timer-bar" id="hostTimerBar"></div></div>
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.85rem; color:var(--text-muted);">
+        <span id="hostQProgress"></span>
+        <span id="hostTimerNum" style="font-size:1.5rem; font-weight:900; color:var(--text);"></span>
       </div>
-
-      <!-- Sidebar: controls + mini leaderboard -->
-      <div class="host-sidebar">
-        <div class="h-card" style="text-align:center;">
-          <div style="font-size:0.8rem; color:var(--text-muted); font-weight:600; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.05em;">Answers received</div>
-          <div id="hostAnswerFraction" style="font-size:2rem; font-weight:900; color:var(--text);"></div>
-          <div style="margin-top:16px; display:flex; flex-direction:column; gap:8px;">
-            <button class="btn btn-skip" id="skipToResultsBtn">Skip to Results</button>
-          </div>
-        </div>
-        <div class="h-card">
-          <div class="leaderboard-title">Current Standings</div>
-          <div id="hostSideLeaderboard"></div>
-        </div>
+      <div class="question-box">
+        <div class="question-text" id="hostQuestionText"></div>
+        <img id="hostQuestionImage" class="question-image" style="display:none;" />
+        <div class="multi-hint" id="hostQTypeBadge"></div>
       </div>
+      <div class="answer-grid" id="hostAnswerGrid" style="pointer-events:none; flex:1;"></div>
     </div>
   </div>
 
-  <!-- RESULTS VIEW (host) -->
-  <div data-view="results">
+  <!-- RESULTS VIEW (host) — Kahoot-style -->
+  <div data-view="results" style="flex:1;">
     <div class="host-topbar">
       <div class="title">Results</div>
       <div class="code-pill" id="hostCodePill2"></div>
+      <div id="correctStats" style="font-size:0.85rem; color:rgba(255,255,255,0.75);"></div>
+      <button class="btn btn-next" id="nextBtn" style="margin-left:auto; width:auto; padding:10px 20px; font-size:0.95rem; border-radius:10px;">See Leaderboard</button>
     </div>
 
-    <div class="host-body">
-      <!-- Main: tally -->
-      <div class="host-main">
-        <div class="h-card">
-          <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.07em; margin-bottom:4px;">Question</div>
-          <div id="resultsQuestionText" style="font-size:1.3rem; font-weight:800; margin-bottom:16px; color:var(--text);"></div>
-
-          <div id="correctStats" style="font-size:0.9rem; color:var(--text-muted); margin-bottom:16px;"></div>
-
-          <div class="tally-grid" id="tallyGrid"></div>
-          <div id="explanationBox" style="display:none; margin-top:16px; padding:14px 16px; background:var(--bg); border:1.5px solid var(--card-border); border-radius:8px; font-size:0.95rem; color:var(--text-muted); line-height:1.6;"></div>
-        </div>
+    <div style="flex:1; display:flex; flex-direction:column; padding:12px 16px; gap:12px; overflow-y:auto;">
+      <div class="question-box" style="padding:16px 24px;">
+        <div class="question-text" id="resultsQuestionText"></div>
       </div>
+      <div id="barChart" style="display:flex; align-items:flex-end; justify-content:center; gap:8px; padding:0 24px; min-height:160px; flex-shrink:0;"></div>
+      <div class="answer-grid" id="resultsAnswerGrid" style="pointer-events:none;"></div>
+      <div id="explanationBox" style="display:none; padding:12px 16px; background:var(--card); border:1.5px solid var(--card-border); border-radius:10px; font-size:0.95rem; color:var(--text-muted); line-height:1.6;"></div>
+    </div>
+  </div>
 
-      <!-- Sidebar: leaderboard + next btn -->
-      <div class="host-sidebar">
-        <div class="h-card" style="text-align:center;">
-          <button class="btn btn-next" id="nextBtn">Next Question</button>
-          <div style="font-size:0.8rem; color:var(--text-muted); margin-top:8px;" id="nextBtnHint"></div>
-        </div>
-        <div class="h-card">
-          <div class="leaderboard-title">Leaderboard</div>
-          <div class="leaderboard" id="resultsLeaderboard"></div>
-        </div>
-      </div>
+  <!-- LEADERBOARD VIEW (host) -->
+  <div data-view="leaderboard" style="flex:1;">
+    <div class="host-topbar">
+      <div class="title">Leaderboard</div>
+      <div class="code-pill" id="hostCodePill3"></div>
+      <button class="btn btn-next" id="nextFromLbBtn" style="margin-left:auto; width:auto; padding:10px 20px; font-size:0.95rem; border-radius:10px;">Next Question</button>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; align-items:center; padding:24px 16px; gap:0; overflow-y:auto;">
+      <div id="nextBtnHint" style="font-size:0.8rem; color:var(--text-muted); margin-bottom:16px;"></div>
+      <div class="leaderboard" id="resultsLeaderboard" style="max-width:520px; width:100%;"></div>
     </div>
   </div>
 
@@ -153,8 +128,8 @@
 const socket = io();
 
 const SHAPES = ['▲', '♦', '●', '■', '★'];
+const COLORS = ['color-0','color-1','color-2','color-3','color-4'];
 const COLORS_CSS = ['var(--red)','var(--blue)','var(--yellow)','var(--green)','var(--orange)'];
-const TEXT_COLORS = ['#fff','#fff','#fff','#fff','#fff'];
 const TYPE_LABELS = { single: 'Single Choice', truefalse: 'True / False', multiple: 'Multi-Select' };
 
 let gameCode = '';
@@ -175,8 +150,8 @@ socket.emit('host:create', ({ code }) => {
   document.getElementById('lobbyCode').textContent = code;
   document.getElementById('hostCodePill').textContent = code;
   document.getElementById('hostCodePill2').textContent = code;
-  const url = `${location.protocol}//${location.hostname}${location.port ? ':'+location.port : ''}/play`;
-  document.getElementById('joinUrl').textContent = url;
+  document.getElementById('hostCodePill3').textContent = code;
+  document.getElementById('joinUrl').textContent = 'toohak.up.railway.app/play';
 });
 
 // ── Lobby ──
@@ -217,22 +192,23 @@ function updatePlayerDisplay(newName, count) {
 socket.on('question:show', q => {
   currentQuestion = q;
 
-  document.getElementById('hostQTypeBadge').textContent = TYPE_LABELS[q.type] || q.type;
-  document.getElementById('hostQProgress').textContent = `${q.index + 1} / ${q.total}`;
+  document.getElementById('hostQTypeBadge').textContent = q.type === 'multiple' ? 'Select all that apply' : '';
+  document.getElementById('hostQProgress').textContent = `Question ${q.index + 1} / ${q.total}`;
   document.getElementById('hostQuestionText').textContent = q.question;
-  document.getElementById('hostAnswerFraction').textContent = `0 / ${playerCount}`;
+  document.getElementById('answerCountDisplay').textContent = `0 / ${playerCount} answered`;
 
   const img = document.getElementById('hostQuestionImage');
   if (q.image) { img.src = q.image; img.style.display = 'block'; }
   else { img.style.display = 'none'; }
 
-  // Build answer list
-  const list = document.getElementById('hostAnswerList');
-  list.innerHTML = q.options.map((opt, i) => `
-    <div class="big-answer" style="background:${COLORS_CSS[i]}; color:${TEXT_COLORS[i]};">
-      <span style="font-size:1.3rem;">${SHAPES[i]}</span>
-      <span style="flex:1;">${esc(opt)}</span>
-    </div>
+  // Build answer grid — identical to guest view, non-interactive
+  const grid = document.getElementById('hostAnswerGrid');
+  grid.className = 'answer-grid' + (q.options.length === 2 ? ' two-options' : '');
+  grid.innerHTML = q.options.map((opt, i) => `
+    <button class="answer-btn ${COLORS[i]}" style="pointer-events:none;">
+      <span class="shape">${SHAPES[i]}</span>
+      <span class="answer-text">${esc(opt)}</span>
+    </button>
   `).join('');
 
   startHostTimer(q.timeLimit);
@@ -261,8 +237,7 @@ function startHostTimer(seconds) {
 }
 
 socket.on('answer:count', ({ count, total }) => {
-  document.getElementById('hostAnswerFraction').textContent = `${count} / ${total}`;
-  document.getElementById('answerCountDisplay').textContent = `${count}/${total} answered`;
+  document.getElementById('answerCountDisplay').textContent = `${count} / ${total} answered`;
 });
 
 document.getElementById('skipToResultsBtn').addEventListener('click', () => {
@@ -277,52 +252,76 @@ socket.on('results:show', data => {
 
   document.getElementById('resultsQuestionText').textContent = q.question;
   document.getElementById('correctStats').textContent =
-    `${data.correctCount} of ${data.totalAnswered} answered correctly`;
+    `${data.correctCount} / ${data.totalAnswered} correct`;
 
-  // Build tally with correct answers shown immediately
-  const maxVal = Math.max(...Object.values(data.tally), 1);
-  const grid = document.getElementById('tallyGrid');
-  grid.innerHTML = q.options.map((opt, i) => {
+  // Vertical bar chart — bars grow upward, heights proportional to count
+  const maxCount = Math.max(...Object.values(data.tally), 1);
+  const MAX_H = 140;
+  const barChart = document.getElementById('barChart');
+  barChart.innerHTML = q.options.map((opt, i) => {
     const count = data.tally[i] || 0;
-    const pct = Math.round((count / maxVal) * 100);
-    const isCorrect = Array.isArray(q.correct) ? q.correct.includes(i) : q.correct === i;
+    const h = Math.max(4, Math.round((count / maxCount) * MAX_H));
+    const isCorrect = Array.isArray(data.correctAnswer) ? data.correctAnswer.includes(i) : data.correctAnswer === i;
     return `
-      <div class="tally-row">
-        <div class="tally-label" style="${isCorrect ? `background:${COLORS_CSS[i]}; color:#fff; padding:6px 12px; border-radius:8px;` : ''}">
-          <span style="font-size:1.1rem;">${SHAPES[i]}</span>
-          <span>${esc(opt)}</span>
-        </div>
-        <div class="tally-bar-wrap">
-          <div class="tally-bar-fill" style="background:${COLORS_CSS[i]};">
-            ${count}
-          </div>
-        </div>
-        <span class="tally-correct-mark">${isCorrect ? '✓' : ''}</span>
+      <div class="bar-col">
+        <div class="bar-check" style="color:${COLORS_CSS[i]}; visibility:${isCorrect ? 'visible' : 'hidden'};">✓</div>
+        <div class="bar-count" style="color:${COLORS_CSS[i]};">${count}</div>
+        <div class="bar-fill" style="height:0; background:${COLORS_CSS[i]}; border-radius:6px 6px 0 0;" data-h="${h}"></div>
+        <div class="bar-chip" style="background:${COLORS_CSS[i]};">${SHAPES[i]}</div>
       </div>
     `;
   }).join('');
+  setTimeout(() => {
+    barChart.querySelectorAll('.bar-fill').forEach(el => {
+      el.style.height = el.dataset.h + 'px';
+    });
+  }, 50);
 
-  // Show explanation
+  // Answer grid — correct = full opacity + ✓, wrong = dimmed
+  const resultsGrid = document.getElementById('resultsAnswerGrid');
+  resultsGrid.className = 'answer-grid' + (q.options.length === 2 ? ' two-options' : '');
+  resultsGrid.innerHTML = q.options.map((opt, i) => {
+    const isCorrect = Array.isArray(data.correctAnswer) ? data.correctAnswer.includes(i) : data.correctAnswer === i;
+    return `
+      <button class="answer-btn ${COLORS[i]}" style="pointer-events:none; opacity:${isCorrect ? '1' : '0.45'};">
+        <span class="shape">${SHAPES[i]}</span>
+        <span class="answer-text">${esc(opt)}</span>
+        ${isCorrect ? '<span style="margin-left:auto; font-size:1.4rem; font-weight:900;">✓</span>' : ''}
+      </button>
+    `;
+  }).join('');
+
+  // Explanation (clearly labelled)
   const box = document.getElementById('explanationBox');
   if (data.explanation) {
-    box.textContent = data.explanation;
+    box.innerHTML = `<span style="font-weight:800; color:var(--text); text-transform:uppercase; font-size:0.72rem; letter-spacing:0.07em;">Explanation</span><br>${esc(data.explanation)}`;
     box.style.display = 'block';
   } else {
     box.style.display = 'none';
   }
 
-  // Update sidebar leaderboard
-  document.getElementById('resultsLeaderboard').innerHTML = renderLeaderboard(data.leaderboard);
-  document.getElementById('hostSideLeaderboard').innerHTML = renderLeaderboard(data.leaderboard);
-
-  const isLast = q.index + 1 >= q.total;
-  document.getElementById('nextBtnHint').textContent = isLast ? 'This was the last question' : `Question ${q.index + 2} of ${q.total} next`;
-  document.getElementById('nextBtn').textContent = isLast ? 'See Final Results' : 'Next Question';
+  // Store for leaderboard view
+  pendingLeaderboard = data.leaderboard;
+  pendingIsLast = q.index + 1 >= q.total;
 
   show('results');
 });
 
+let pendingLeaderboard = [];
+let pendingIsLast = false;
+
+// Results → show leaderboard view
 document.getElementById('nextBtn').addEventListener('click', () => {
+  document.getElementById('resultsLeaderboard').innerHTML = renderLeaderboard(pendingLeaderboard);
+  document.getElementById('nextBtnHint').textContent = pendingIsLast
+    ? 'This was the last question'
+    : `Question ${currentQuestion.index + 2} of ${currentQuestion.total} next`;
+  document.getElementById('nextFromLbBtn').textContent = pendingIsLast ? 'See Final Results' : 'Next Question';
+  show('leaderboard');
+});
+
+// Leaderboard → advance game
+document.getElementById('nextFromLbBtn').addEventListener('click', () => {
   socket.emit('host:next', { code: gameCode });
 });
 
