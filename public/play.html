@@ -104,11 +104,24 @@ const SHAPES = ['▲', '♦', '●', '■', '★'];
 const COLORS = ['color-0','color-1','color-2','color-3','color-4'];
 const COLOR_NAMES = ['Red','Blue','Yellow','Green'];
 
+// Stable ID for this browser tab — survives reload, cleared when tab closes
+let playerId = sessionStorage.getItem('playerId');
+if (!playerId) {
+  playerId = Math.random().toString(36).slice(2) + Date.now().toString(36);
+  sessionStorage.setItem('playerId', playerId);
+}
+
 let currentCode = '';
+let currentName = '';
 let currentQuestion = null;
 let timerInterval = null;
 let selectedAnswers = [];
 let hasAnswered = false;
+
+function clearSession() {
+  sessionStorage.removeItem('gameCode');
+  sessionStorage.removeItem('playerName');
+}
 
 // ── View switching ──
 function show(name) {
@@ -117,12 +130,34 @@ function show(name) {
   if (v) v.classList.add('active');
 }
 
-// ── Join ──
+// ── Join DOM refs ──
 const joinBtn = document.getElementById('joinBtn');
 const codeInput = document.getElementById('codeInput');
 const nameInput = document.getElementById('nameInput');
 const joinError = document.getElementById('joinError');
 
+// ── Auto-rejoin on connect (handles page reload and network reconnects) ──
+socket.on('connect', () => {
+  const savedCode = sessionStorage.getItem('gameCode');
+  const savedName = sessionStorage.getItem('playerName');
+  if (!savedCode || !savedName) return;
+
+  socket.emit('player:join', { code: savedCode, name: savedName, playerId }, res => {
+    if (res.error) {
+      clearSession();
+      joinError.textContent = res.error;
+      show('join');
+      return;
+    }
+    currentCode = savedCode;
+    currentName = savedName;
+    document.getElementById('lobbyName').textContent = savedName;
+    show('lobby');
+    // If mid-question, server re-emits question:show which will switch the view
+  });
+});
+
+// ── Join ──
 function doJoin() {
   const code = codeInput.value.trim();
   const name = nameInput.value.trim();
@@ -133,15 +168,18 @@ function doJoin() {
 
   joinBtn.disabled = true;
   joinBtn.textContent = 'Joining...';
-  currentCode = code;
 
-  socket.emit('player:join', { code, name }, res => {
+  socket.emit('player:join', { code, name, playerId }, res => {
     joinBtn.disabled = false;
     joinBtn.textContent = 'Join!';
     if (res.error) {
       joinError.textContent = res.error;
       return;
     }
+    currentCode = code;
+    currentName = name;
+    sessionStorage.setItem('gameCode', code);
+    sessionStorage.setItem('playerName', name);
     document.getElementById('lobbyName').textContent = name;
     show('lobby');
   });
@@ -282,11 +320,11 @@ function getCorrectText(correct, q) {
 // ── End ──
 socket.on('game:end', ({ leaderboard }) => {
   clearInterval(timerInterval);
+  clearSession();
   const lb = document.getElementById('endLeaderboard');
   lb.innerHTML = renderLeaderboard(leaderboard);
 
-  const myName = document.getElementById('lobbyName').textContent;
-  const myRank = leaderboard.findIndex(p => p.name === myName) + 1;
+  const myRank = leaderboard.findIndex(p => p.name === currentName) + 1;
   document.getElementById('endRankMsg').textContent = myRank
     ? `You finished #${myRank} with ${leaderboard[myRank-1]?.score?.toLocaleString()} points!`
     : '';
@@ -296,6 +334,7 @@ socket.on('game:end', ({ leaderboard }) => {
 
 socket.on('game:host_left', () => {
   clearInterval(timerInterval);
+  clearSession();
   show('disconnected');
 });
 

@@ -87,15 +87,17 @@ function showResults(game) {
 
   io.to(`host-${game.code}`).emit('results:show', { ...base, explanation: q.explanation || '' });
 
-  game.players.forEach((player, socketId) => {
+  game.players.forEach(player => {
     const ans = player.answers[game.currentQuestion];
     const rank = leaderboard.findIndex(p => p.name === player.name) + 1;
-    io.to(socketId).emit('results:show', {
-      ...base,
-      playerResult: ans ? { correct: ans.correct, points: ans.points } : { correct: false, points: 0 },
-      score: player.score,
-      rank,
-    });
+    if (player.socketId) {
+      io.to(player.socketId).emit('results:show', {
+        ...base,
+        playerResult: ans ? { correct: ans.correct, points: ans.points } : { correct: false, points: 0 },
+        score: player.score,
+        rank,
+      });
+    }
   });
 }
 
@@ -115,7 +117,9 @@ io.on('connection', socket => {
     const game = {
       code,
       hostId: socket.id,
-      players: new Map(),
+      players: new Map(),          // playerId → player data
+      socketToPlayer: new Map(),   // socket.id → playerId
+      disconnectTimers: new Map(), // playerId → timeout handle
       phase: 'lobby',
       currentQuestion: -1,
       questionTimer: null,
@@ -126,10 +130,48 @@ io.on('connection', socket => {
     cb({ code });
   });
 
-  socket.on('player:join', ({ code, name }, cb) => {
+  socket.on('player:join', ({ code, name, playerId }, cb) => {
     const game = games.get(code);
     if (!game) return cb({ error: 'Game not found. Check your code!' });
+
+    // Reconnect path: same playerId already in this game
+    if (playerId && game.players.has(playerId)) {
+      if (game.phase === 'end') return cb({ error: 'This game has already ended.' });
+
+      const player = game.players.get(playerId);
+
+      if (game.disconnectTimers.has(playerId)) {
+        clearTimeout(game.disconnectTimers.get(playerId));
+        game.disconnectTimers.delete(playerId);
+      }
+
+      if (player.socketId) game.socketToPlayer.delete(player.socketId);
+      player.socketId = socket.id;
+      game.socketToPlayer.set(socket.id, playerId);
+
+      socket.join(`players-${code}`);
+      socket.data.gameCode = code;
+
+      // Re-send the current question so the player can pick up mid-game
+      if (game.phase === 'question') {
+        const q = questions[game.currentQuestion];
+        socket.emit('question:show', {
+          index: game.currentQuestion,
+          total: questions.length,
+          question: q.question,
+          type: q.type,
+          options: q.options,
+          timeLimit: q.timeLimit || 60,
+          image: q.image || null,
+        });
+      }
+
+      return cb({ success: true, reconnected: true });
+    }
+
+    // New join validations
     if (game.phase !== 'lobby') return cb({ error: 'This game has already started.' });
+    if (!playerId) return cb({ error: 'Invalid session.' });
     if (!name || name.trim().length < 1) return cb({ error: 'Please enter a nickname.' });
     if (name.trim().length > 20) return cb({ error: 'Nickname too long (max 20 chars).' });
 
@@ -137,7 +179,8 @@ io.on('connection', socket => {
     const nameTaken = [...game.players.values()].some(p => p.name.toLowerCase() === trimmed.toLowerCase());
     if (nameTaken) return cb({ error: 'That nickname is already taken!' });
 
-    game.players.set(socket.id, { name: trimmed, score: 0, answers: {} });
+    game.players.set(playerId, { name: trimmed, score: 0, answers: {}, socketId: socket.id });
+    game.socketToPlayer.set(socket.id, playerId);
     socket.join(`players-${code}`);
     socket.data.gameCode = code;
 
@@ -177,7 +220,9 @@ io.on('connection', socket => {
     const game = games.get(code);
     if (!game || game.phase !== 'question') return;
 
-    const player = game.players.get(socket.id);
+    const playerId = game.socketToPlayer.get(socket.id);
+    if (!playerId) return;
+    const player = game.players.get(playerId);
     if (!player) return;
     if (player.answers[game.currentQuestion] !== undefined) return; // already answered
 
@@ -226,11 +271,29 @@ io.on('connection', socket => {
       return;
     }
 
-    const player = game.players.get(socket.id);
-    if (player) {
-      game.players.delete(socket.id);
+    const playerId = game.socketToPlayer.get(socket.id);
+    if (!playerId) return;
+    game.socketToPlayer.delete(socket.id);
+
+    const player = game.players.get(playerId);
+    if (!player) return;
+
+    // Give the player 5 seconds to reconnect before removing them
+    const timer = setTimeout(() => {
+      game.players.delete(playerId);
+      game.disconnectTimers.delete(playerId);
       io.to(`host-${code}`).emit('player:left', { name: player.name, count: game.players.size });
-    }
+
+      // Re-check auto-advance in case this was the last unanswered player
+      if (game.phase === 'question') {
+        const answered = [...game.players.values()].filter(p => p.answers[game.currentQuestion] !== undefined).length;
+        if (game.players.size > 0 && answered === game.players.size) {
+          showResults(game);
+        }
+      }
+    }, 5000);
+
+    game.disconnectTimers.set(playerId, timer);
   });
 });
 
